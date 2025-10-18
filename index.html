@@ -1,0 +1,95 @@
+import React, { useState } from 'react';
+import CustomInput from './CustomInput';
+import GoldBarIcon from './icons/GoldBarIcon';
+
+const GoldCalculator: React.FC = () => {
+  const [weight, setWeight] = useState('');
+  const [pricePerGram, setPricePerGram] = useState('');
+  const [craftsmanship, setCraftsmanship] = useState('');
+  const [total, setTotal] = useState<number | null>(null);
+  const [error, setError] = useState<string>('');
+
+  const handleCalculate = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setTotal(null);
+
+    const numWeight = parseFloat(weight);
+    const numPricePerGram = parseFloat(pricePerGram);
+    const numCraftsmanship = parseFloat(craftsmanship);
+
+    if (isNaN(numWeight) || isNaN(numPricePerGram) || isNaN(numCraftsmanship)) {
+      setError('الرجاء إدخال أرقام صالحة في جميع الحقول.');
+      return;
+    }
+
+    if (numWeight <= 0 || numPricePerGram <= 0 || numCraftsmanship < 0) {
+      setError('الرجاء إدخال قيم موجبة للوزن والسعر، والمصنعية لا يمكن أن تكون سالبة.');
+      return;
+    }
+
+    const calculatedTotal = numWeight * (numPricePerGram + numCraftsmanship);
+    setTotal(calculatedTotal);
+  };
+
+  return (
+    <div className="w-full max-w-md mx-auto bg-gray-800 bg-opacity-70 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-yellow-500/30">
+      <div className="text-center mb-8">
+        <div className="flex justify-center items-center gap-4">
+          <GoldBarIcon />
+          <h1 className="text-3xl font-bold text-yellow-400">حاسبة الذهب</h1>
+        </div>
+        <p className="text-gray-400 mt-2">أدخل التفاصيل لحساب التكلفة الإجمالية</p>
+      </div>
+      
+      <form onSubmit={handleCalculate} className="space-y-6">
+        <CustomInput
+          id="weight"
+          label="وزن الذهب (بالجرام)"
+          value={weight}
+          onChange={(e) => setWeight(e.target.value)}
+          placeholder="مثال: 10.5"
+        />
+        <CustomInput
+          id="pricePerGram"
+          label="سعر الجرام"
+          value={pricePerGram}
+          onChange={(e) => setPricePerGram(e.target.value)}
+          placeholder="مثال: 3000"
+        />
+        <CustomInput
+          id="craftsmanship"
+          label="تكلفة المصنعية للجرام"
+          value={craftsmanship}
+          onChange={(e) => setCraftsmanship(e.target.value)}
+          placeholder="مثال: 50"
+        />
+        
+        <button 
+          type="submit"
+          className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500 transition-all duration-300 ease-in-out transform hover:scale-105"
+        >
+          احسب السعر
+        </button>
+      </form>
+
+      {error && (
+        <div className="mt-6 p-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg text-center">
+          {error}
+        </div>
+      )}
+
+      {total !== null && (
+        <div className="mt-8 pt-6 border-t border-yellow-500/20 text-center">
+          <p className="text-lg text-gray-400">السعر الإجمالي هو</p>
+          <p className="text-4xl font-bold text-yellow-400 mt-2">
+            {total.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            <span className="text-2xl text-yellow-500 mr-2">ج.م</span>
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GoldCalculator;

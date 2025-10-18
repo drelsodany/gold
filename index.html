@@ -1,95 +1,154 @@
-import React, { useState } from 'react';
-import CustomInput from './CustomInput';
-import GoldBarIcon from './icons/GoldBarIcon';
-
-const GoldCalculator: React.FC = () => {
-  const [weight, setWeight] = useState('');
-  const [pricePerGram, setPricePerGram] = useState('');
-  const [craftsmanship, setCraftsmanship] = useState('');
-  const [total, setTotal] = useState<number | null>(null);
-  const [error, setError] = useState<string>('');
-
-  const handleCalculate = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setTotal(null);
-
-    const numWeight = parseFloat(weight);
-    const numPricePerGram = parseFloat(pricePerGram);
-    const numCraftsmanship = parseFloat(craftsmanship);
-
-    if (isNaN(numWeight) || isNaN(numPricePerGram) || isNaN(numCraftsmanship)) {
-      setError('الرجاء إدخال أرقام صالحة في جميع الحقول.');
-      return;
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>حاسبة الذهب</title>
+  <style>
+    body {
+      background: #0f172a;
+      font-family: "Tajawal", sans-serif;
+      color: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
     }
-
-    if (numWeight <= 0 || numPricePerGram <= 0 || numCraftsmanship < 0) {
-      setError('الرجاء إدخال قيم موجبة للوزن والسعر، والمصنعية لا يمكن أن تكون سالبة.');
-      return;
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid rgba(234, 179, 8, 0.3);
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(234, 179, 8, 0.2);
+      padding: 2rem;
+      text-align: center;
     }
+    h1 {
+      color: #facc15;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: #9ca3af;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      text-align: right;
+      margin-bottom: 0.3rem;
+      color: #f1f5f9;
+      font-size: 0.9rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.7rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-align: center;
+    }
+    input {
+      background: #1e293b;
+      color: #fff;
+    }
+    select {
+      background: #facc15;
+      color: #111;
+      font-weight: bold;
+    }
+    button {
+      width: 100%;
+      background: linear-gradient(to right, #facc15, #eab308);
+      color: #111;
+      font-weight: bold;
+      padding: 0.9rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: transform 0.2s, background 0.3s;
+    }
+    button:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #eab308, #ca8a04);
+    }
+    .result {
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(250, 204, 21, 0.2);
+      padding-top: 1rem;
+    }
+    .error {
+      margin-top: 1rem;
+      background: rgba(127, 29, 29, 0.5);
+      color: #fecaca;
+      padding: 0.7rem;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💰 حاسبة الذهب</h1>
+    <p>أدخل التفاصيل لحساب التكلفة الإجمالية</p>
 
-    const calculatedTotal = numWeight * (numPricePerGram + numCraftsmanship);
-    setTotal(calculatedTotal);
-  };
+    <form id="goldForm">
+      <label for="weight">وزن الذهب (جرام)</label>
+      <input type="number" id="weight" step="0.01" placeholder="مثال: 10.5" required />
 
-  return (
-    <div className="w-full max-w-md mx-auto bg-gray-800 bg-opacity-70 backdrop-blur-sm rounded-2xl shadow-2xl p-8 border border-yellow-500/30">
-      <div className="text-center mb-8">
-        <div className="flex justify-center items-center gap-4">
-          <GoldBarIcon />
-          <h1 className="text-3xl font-bold text-yellow-400">حاسبة الذهب</h1>
-        </div>
-        <p className="text-gray-400 mt-2">أدخل التفاصيل لحساب التكلفة الإجمالية</p>
-      </div>
-      
-      <form onSubmit={handleCalculate} className="space-y-6">
-        <CustomInput
-          id="weight"
-          label="وزن الذهب (بالجرام)"
-          value={weight}
-          onChange={(e) => setWeight(e.target.value)}
-          placeholder="مثال: 10.5"
-        />
-        <CustomInput
-          id="pricePerGram"
-          label="سعر الجرام"
-          value={pricePerGram}
-          onChange={(e) => setPricePerGram(e.target.value)}
-          placeholder="مثال: 3000"
-        />
-        <CustomInput
-          id="craftsmanship"
-          label="تكلفة المصنعية للجرام"
-          value={craftsmanship}
-          onChange={(e) => setCraftsmanship(e.target.value)}
-          placeholder="مثال: 50"
-        />
-        
-        <button 
-          type="submit"
-          className="w-full bg-gradient-to-r from-yellow-500 to-yellow-600 text-gray-900 font-bold py-3 px-4 rounded-lg shadow-lg hover:from-yellow-600 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-500 transition-all duration-300 ease-in-out transform hover:scale-105"
-        >
-          احسب السعر
-        </button>
-      </form>
+      <label for="price">سعر الجرام</label>
+      <input type="number" id="price" step="0.01" placeholder="مثال: 3000" required />
 
-      {error && (
-        <div className="mt-6 p-4 bg-red-900/50 border border-red-700 text-red-300 rounded-lg text-center">
-          {error}
-        </div>
-      )}
+      <label for="craft">تكلفة المصنعية للجرام</label>
+      <input type="number" id="craft" step="0.01" placeholder="مثال: 50" required />
 
-      {total !== null && (
-        <div className="mt-8 pt-6 border-t border-yellow-500/20 text-center">
-          <p className="text-lg text-gray-400">السعر الإجمالي هو</p>
-          <p className="text-4xl font-bold text-yellow-400 mt-2">
-            {total.toLocaleString('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            <span className="text-2xl text-yellow-500 mr-2">ج.م</span>
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
+      <label for="currency">العملة</label>
+      <select id="currency">
+        <option value="ج.م">جنيه مصري (ج.م)</option>
+        <option value="ر.س">ريال سعودي (ر.س)</option>
+        <option value="$">دولار ($)</option>
+      </select>
 
-export default GoldCalculator;
+      <button type="submit">احسب السعر</button>
+    </form>
+
+    <div id="error" class="error" style="display:none;"></div>
+    <div id="result" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('goldForm');
+    const result = document.getElementById('result');
+    const error = document.getElementById('error');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      error.style.display = 'none';
+      result.style.display = 'none';
+
+      const weight = parseFloat(document.getElementById('weight').value);
+      const price = parseFloat(document.getElementById('price').value);
+      const craft = parseFloat(document.getElementById('craft').value);
+      const currency = document.getElementById('currency').value;
+
+      if (isNaN(weight) || isNaN(price) || isNaN(craft) || weight <= 0 || price <= 0 || craft < 0) {
+        error.textContent = '⚠️ الرجاء إدخال قيم صحيحة في جميع الحقول.';
+        error.style.display = 'block';
+        return;
+      }
+
+      const total = weight * (price + craft);
+      result.innerHTML = `
+        <p>السعر الإجمالي هو:</p>
+        <h2 style="color:#facc15; font-size:2rem; margin:0.5rem 0;">
+          ${total.toLocaleString('ar-EG', {minimumFractionDigits:2, maximumFractionDigits:2})}
+          <span style="font-size:1.2rem; color:#fbbf24;">${currency}</span>
+        </h2>
+      `;
+      result.style.display = 'block';
+    });
+  </script>
+</body>
+</html>

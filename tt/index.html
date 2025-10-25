@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام الاستعلام عن جدول الامتحانات - كلية الشمال للتمريض الأهلية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            width: 120px;
+            height: auto;
+            margin: 0 auto 20px;
+            display: block;
+            filter: drop-shadow(2px 2px 8px rgba(0,0,0,0.3));
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .search-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .search-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9ff;
+            border-radius: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .checkbox-label input {
+            width: auto !important;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .btn-search {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-reset {
+            background: #f5f5f5;
+            color: #333;
+            padding: 12px 25px;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .stats-container.show {
+            display: grid;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow-x: auto;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 1.2em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th {
+            padding: 15px 10px;
+            text-align: right;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 0.9em;
+        }
+
+        td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9em;
+        }
+
+        tbody tr {
+            transition: all 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9ff;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .badge-computerized {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-evening {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-female {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .badge-male {
+            background: #e1f5fe;
+            color: #0277bd;
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                width: 90px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 0.95em;
+            }
+
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            table {
+                font-size: 0.8em;
+            }
+
+            th, td {
+                padding: 8px 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="data:image/png;base64,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" alt="شعار كلية الشمال للتمريض" class="logo">
+            <h1>نظام الاستعلام عن جدول الامتحانات</h1>
+            <p>كلية الشمال للتمريض الأهلية</p>
+        </div>
+
+        <div class="search-container">
+            <div class="search-title">🔍 معايير البحث</div>
+            <div class="search-grid">
+                <div class="form-group">
+                    <label for="day">اليوم</label>
+                    <select id="day">
+                        <option value="">جميع الأيام</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">التاريخ</label>
+                    <select id="date">
+                        <option value="">جميع التواريخ</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="period">الفترة</label>
+                    <select id="period">
+                        <option value="">جميع الفترات</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">جنس الشعبة</label>
+                    <select id="gender">
+                        <option value="">الجميع</option>
+                        <option value="اناث">إناث</option>
+                        <option value="ذكور">ذكور</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="course">المقرر</label>
+                    <input type="text" id="course" placeholder="ابحث عن اسم المقرر...">
+                </div>
+
+                <div class="form-group">
+                    <label for="courseCode">رمز المقرر</label>
+                    <input type="text" id="courseCode" placeholder="ابحث عن رمز المقرر...">
+                </div>
+
+                <div class="form-group">
+                    <label for="section">الشعبة</label>
+                    <input type="text" id="section" placeholder="رقم الشعبة...">
+                </div>
+
+                <div class="form-group">
+                    <label for="professor">أستاذ المقرر</label>
+                    <input type="text" id="professor" placeholder="اسم الأستاذ...">
+                </div>
+
+                <div class="form-group">
+                    <label for="room">القاعة</label>
+                    <input type="text" id="room" placeholder="رقم القاعة...">
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" id="computerized">
+                    <span>💻 محوسب فقط</span>
+                </label>
+                <label class="checkbox-label">
+                    <input type="checkbox" id="evening">
+                    <span>🌙 مسائي فقط</span>
+                </label>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-search" onclick="search()">🔍 بحث</button>
+                <button class="btn-reset" onclick="reset()">🔄 إعادة تعيين</button>
+            </div>
+        </div>
+
+        <div class="stats-container" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalResults">0</div>
+                <div class="stat-label">نتيجة</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalStudents">0</div>
+                <div class="stat-label">إجمالي الطلاب</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRooms">0</div>
+                <div class="stat-label">قاعة</div>
+            </div>
+        </div>
+
+        <div class="results-container">
+            <div id="results">
+                <div class="no-results">
+                    <span style="font-size: 4em;">📚</span>
+                    <p>استخدم نموذج البحث أعلاه للبدء</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const data = [
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7102", "اناث", "منال محمد احمد عبدالعزيز", "52", "A7,A8", "A7=26, A8=26", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7106", "اناث", "منال محمد احمد عبدالعزيز", "40", "B1,B2", "B1=20, B2=20", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7122", "ذكور", "أشرف أمين عبدالعظيم الطحان", "26", "G1", "G1=26", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7126", "ذكور", "دانيال جوزيف ُاسفينا برديدا", "59", "G2,G3", "G2=30, G3=29", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1108", "اناث", "كريل دوريكو اغونور .", "54", "B3,B6", "B3=27, B6=27", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1123", "اناث", "نعيمه محمد السيد شعبان", "64", "B7,B8", "B7=32, B8=32", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1138", "ذكور", "علي حسين عبدالمجيد محمد", "54", "C9,C7", "C9=27, C7=27", "مسائي", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1143", "ذكور", "هدى محمد عبدالرحمن فليفل", "61", "G6,G7", "G6=31, G7=30", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7110", "اناث", "ادلينا ماغتوتو سانتوس .", "26", "C6", "C6=26", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7113", "اناث", "ادلينا ماغتوتو سانتوس .", "48", "C7,C8", "C7=24, C8=24", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7117", "اناث", "أمال هاشم محمد ِعبدالعليم", "55", "D7,D8", "D7=28, D8=27", "مسائي", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "NURS441", "ادارة   التمريض نظري", "7130", "ذكور", "إبراهيم أحمد محمد السماحي", "35", "C8", "C8=35", "مسائي", "محوسب"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1103", "اناث", "نعيمه محمد السيد شعبان", "57", "D1,D4", "D1=29, D4=28", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1148", "ذكور", "هدى محمد عبدالرحمن فليفل", "54", "H3,H4", "H3=27, H4=27", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1162", "اناث", "زينب ربيع عبدالمرضي امام", "40", "D5,D6", "D5=20, D6=20", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1113", "اناث", "ايمان مختار محمد جبر", "51", "D7,D8", "D7=26, D8=25", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1118", "اناث", "غادة صبحي حسن عبدالرحمن", "53", "E6,E8", "E6=27, E8=26", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1128", "اناث", "داليا محمد فتحي عبدالمقصود", "55", "E9,E10", "E9=28, E10=27", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1133", "اناث", "نهيد محمد اسماعيل الخطيب", "56", "F9,F8", "F9=28, F8=28", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1153", "ذكور", "علي حسين عبدالمجيد محمد", "51", "H5,H6", "H5=26, H6=25", "", "0"],
+            ["الأحد", "26/10/2025", "الأولى", "PMDC101", "مبادى الكليات الصحية", "1158", "ذكور", "إياد ناجي محمد عبدالفتاح", "56", "H7,H8", "H7=28, H8=28", "", "0"],
+            ["الأحد", "26/10/2025", "الثانية", "IC101", "مدخل الى الثقافة الاسلامية", "4104", "اناث", "عبيد عياد حمر العنزي", "68", "A7,A8", "A7=34, A8=34", "", "محوسب"],
+            ["الأحد", "26/10/2025", "الثانية", "IC101", "مدخل الى الثقافة الاسلامية", "4111", "ذكور", "عبيد عياد حمر العنزي", "39", "G1,G2", "G1=20, G2=19", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3101", "اناث", "زينب ربيع عبدالمرضي امام", "47", "A7,A8", "A7=24, A8=23", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3106", "اناث", "ضحى عبدالهادي عبدالجواد محمد", "53", "B1,B2", "B1=27, B2=26", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3111", "ذكور", "هدى محمد عبدالرحمن فليفل", "56", "G1,G2", "G1=28, G2=28", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31016", "اناث", "غادة صبحي حسن عبدالرحمن", "59", "B3,B6", "B3=30, B6=29", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31023", "اناث", "إشراق سلامة هاشم محمد", "50", "B7,B8", "B7=25, B8=25", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31031", "ذكور", "كريم محمد عبدالهادي محمد", "57", "G3,G4", "G3=29, G4=28", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31038", "ذكور", "موسى عبد الفتاح موسى حسن", "29", "G5", "G5=29", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5101", "اناث", "إشراق سلامة هاشم محمد", "45", "C2,C6", "C2=23, C6=22", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5108", "اناث", "نرجس محمد صيام محمد", "35", "C7", "C7=35", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5114", "اناث", "نبيله سالم محمد سالم", "56", "C9,C8", "C9=28, C8=28", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5116", "ذكور", "عماد محمد محمد عبدالتواب", "13", "G6", "G6=13", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5123", "ذكور", "سهام شحاته مصطفى مرزوق", "50", "G7,G8", "G7=25, G8=25", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "PENG003", "اللغة الانجليزية تحضيري 3", "2113", "اناث", "شهد زياد علي الدندن", "37", "D7,D8", "D7=19, D8=18", "مسائي", "محوسب"],
+            ["الإثنين", "27/10/2025", "الأولى", "PENG003", "اللغة الانجليزية تحضيري 3", "2121", "اناث", "سلوى وفائي . .", "52", "D5,D6", "D5=26, D6=26", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3123", "اناث", "أمال هاشم محمد ِعبدالعليم", "39", "D7,D8", "D7=20, D8=19", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31019", "اناث", "رهام محرم ابراهيم سراج", "23", "E6", "E6=23", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31026", "اناث", "رهام محرم ابراهيم سراج", "29", "E8", "E8=29", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31034", "ذكور", "إياد ناجي محمد عبدالفتاح", "43", "H1,H2", "H1=22, H2=21", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5104", "اناث", "اماني لطفي احمد عمارة", "42", "E9,E10", "E9=21, E10=21", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5111", "اناث", "اماني لطفي احمد عمارة", "41", "F1,F2", "F1=21, F2=20", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "5119", "ذكور", "علي حسين عبدالمجيد محمد", "8", "G6", "G6=8", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "PENG003", "اللغة الانجليزية تحضيري 3", "2101", "اناث", "شهد زياد علي الدندن", "61", "F5,F6", "F5=31, F6=30", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الأولى", "PENG003", "اللغة الانجليزية تحضيري 3", "2106", "ذكور", "عمر محمد المولى سعيد", "61", "H4,H5", "H4=31, H5=30", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3118", "اناث", "إشراق سلامة هاشم محمد", "40", "F9,F10", "F9=20, F10=20", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS211", "اساسيات التمريض 1 نظري", "3124", "ذكور", "إبراهيم أحمد محمد السماحي", "28", "H7", "H7=28", "", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31029", "اناث", "سهام شحاته مصطفى مرزوق", "63", "D5,D6", "D5=32, D6=31", "مسائي", "0"],
+            ["الإثنين", "27/10/2025", "الأولى", "NURS311", "تمريض عناية بالغين أساسي نظري", "31041", "ذكور", "إياد ناجي محمد عبدالفتاح", "48", "C7,C8", "C7=24, C8=24", "مسائي", "0"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7111", "اناث", "مطارد دخيل ناصر العنزي", "45", "A7,A8", "A7=23, A8=22", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7131", "ذكور", "نداء هزاع نداء الشمري", "38", "G1,G2", "G1=19, G2=19", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7103", "اناث", "مطارد دخيل ناصر العنزي", "52", "F10,F9", "F10=26, F9=26", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7119", "اناث", "مطارد دخيل ناصر العنزي", "45", "F8,B6", "F8=23, B6=22", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7127", "ذكور", "نداء هزاع نداء الشمري", "31", "G3", "G3=31", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7107", "اناث", "مطارد دخيل ناصر العنزي", "50", "B7,B8", "B7=25, B8=25", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7123", "ذكور", "نداء هزاع نداء الشمري", "39", "G5,G6", "G5=20, G6=19", "", "محوسب"],
+            ["الإثنين", "27/10/2025", "الثانية", "IC102", "الاسلام وبناء المجتمع", "7115", "اناث", "مطارد دخيل ناصر العنزي", "45", "C2,C6", "C2=23, C6=22", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "ARAB102", "التحرير العربي", "6109", "ذكور", "محمد رفعت اسماعيل السوداني", "62", "G1,G2", "G1=31, G2=31", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1101", "اناث", "شهد زياد علي الدندن", "63", "A7,A8", "A7=32, A8=31", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1106", "اناث", "شهد زياد علي الدندن", "45", "F8,F9", "F8=23, F9=22", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1111", "اناث", "ريم علي حوفان الشمراني", "47", "B6,B7", "B6=24, B7=23", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1116", "اناث", "ريم علي حوفان الشمراني", "42", "B8,F10", "B8=21, F10=21", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1121", "اناث", "سلوى وفائي . .", "55", "C6,C7", "C6=28, C7=27", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1136", "ذكور", "عمر محمد المولى سعيد", "41", "C7,C6", "C7=21, C6=20", "مسائي", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1141", "ذكور", "سمير هاشم هاشم خليفه", "56", "G6,G7", "G6=28, G7=28", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1146", "ذكور", "سمير هاشم هاشم خليفه", "45", "G8,H1", "G8=23, H1=22", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1156", "ذكور", "سمير هاشم هاشم خليفه", "33", "H2", "H2=33", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1126", "اناث", "شهد زياد علي الدندن", "39", "C8,C9", "C8=30, C9=9", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1131", "اناث", "شهد زياد علي الدندن", "11", "C9", "C9=11", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "PENG001", "اللغة الانجليزية تحضيري 1", "1151", "ذكور", "عمر محمد المولى سعيد", "44", "H4,H5", "H4=22, H5=22", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "ARAB102", "التحرير العربي", "6103", "اناث", "نجود عواد عوده العطوي", "56", "D7,D8", "D7=28, D8=28", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الأولى", "ARAB102", "التحرير العربي", "6106", "اناث", "نجود عواد عوده العطوي", "54", "D5,D6", "D5=27, D6=27", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "CHEM203", "الكيمياء الحيوية", "3104", "اناث", "نهى مرعي مسير العنزي", "61", "A7,A8", "A7=31, A8=30", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "CHEM203", "الكيمياء الحيوية", "3109", "اناث", "نهى مرعي مسير العنزي", "44", "D6,D7", "D6=22, D7=22", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "CHEM203", "الكيمياء الحيوية", "3114", "ذكور", "بشارة إلياس حمدتو أرباب", "31", "G1", "G1=31", "", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "PCHM121", "كيمياء طبية", "2110", "ذكور", "احمد محمد وهبه وهبه", "42", "G3,G4", "G3=21, G4=21", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "PCHM121", "كيمياء طبية", "2105", "اناث", "وفاء فايز فنخير العنزي", "53", "B6,B7", "B6=27, B7=26", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "PCHM121", "كيمياء طبية", "2114", "اناث", "وفاء فايز فنخير العنزي", "28", "B8", "B8=28", "", "0"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "PCHM121", "كيمياء طبية", "2120", "ذكور", "سلطان عياده ثاني الشمري", "33", "C9", "C9=33", "مسائي", "0"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "CHEM203", "الكيمياء الحيوية", "3117", "اناث", "نهى مرعي مسير العنزي", "30", "D7", "D7=30", "مسائي", "محوسب"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "PCHM121", "كيمياء طبية", "2111", "اناث", "وفاء فايز فنخير العنزي", "28", "D8", "D8=28", "مسائي", "0"],
+            ["الثلاثاء", "28/10/2025", "الثانية", "CHEM203", "الكيمياء الحيوية", "3120", "ذكور", "بشارة إلياس حمدتو أرباب", "10", "C8", "C8=10", "مسائي", "محوسب"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7101", "اناث", "هويدا محمد علي حسن", "30", "A7", "A7=30", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7105", "اناث", "هويدا محمد علي حسن", "51", "A8,B7", "A8=26, B7=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7118", "اناث", "فاتن فتحي أحمد محفوظ", "36", "F10,F9", "F10=18, F9=18", "مسائي", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7121", "ذكور", "احمد محمود بسيوني سمك", "29", "G1", "G1=29", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7125", "ذكور", "كريم محمد عبدالهادي محمد", "25", "G2", "G2=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7129", "ذكور", "موسى عبد الفتاح موسى حسن", "36", "C6,C7", "C6=18, C7=18", "مسائي", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7133", "ذكور", "دانيال جوزيف ُاسفينا برديدا", "61", "G5,G6", "G5=31, G6=30", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7134", "اناث", "سيده محمد احمد سليمان", "31", "B6", "B6=31", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1125", "اناث", "انفال ساير مرحول الرويلي", "60", "B8,C2", "B8=30, C2=30", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1130", "اناث", "انفال ساير مرحول الرويلي", "45", "C6,C7", "C6=23, C7=22", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1140", "ذكور", "ولاء عطيه الدسوقي عسكر", "52", "C8,C9", "C8=26, C9=26", "مسائي", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7109", "اناث", "بتعه محمود محمد اسماعيل", "26", "C8", "C8=26", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "NURS431", "تمريض الأطفال نظري", "7114", "اناث", "بتعه محمود محمد اسماعيل", "50", "C9,F7", "C9=25, F7=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1115", "اناث", "نجود عواد عوده العطوي", "65", "F8,D4", "F8=33, D4=32", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1120", "اناث", "نجود عواد عوده العطوي", "48", "D6,D7", "D6=24, D7=24", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1560", "ذكور", "ولاء عطيه الدسوقي عسكر", "32", "H2", "H2=32", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1105", "اناث", "نجود عواد عوده العطوي", "46", "D8,E6", "D8=23, E6=23", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1110", "اناث", "نجود عواد عوده العطوي", "55", "E8,E9", "E8=28, E9=27", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1135", "اناث", "نجود عواد عوده العطوي", "51", "E10,F6", "E10=26, F6=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1145", "ذكور", "ولاء عطيه الدسوقي عسكر", "56", "H4,H5", "H4=28, H5=28", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1150", "ذكور", "ولاء عطيه الدسوقي عسكر", "46", "H6,H7", "H6=23, H7=23", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1155", "ذكور", "فيصل اسعد عبدالله العنزي", "50", "H8,H3", "H8=25, H3=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1160", "ذكور", "ولاء عطيه الدسوقي عسكر", "22", "G7", "G7=22", "", "0"],
+            ["الأربعاء", "29/10/2025", "الأولى", "PCSK001", "مهارات الاتصال", "1163", "اناث", "انفال ساير مرحول الرويلي", "44", "F2,F5", "F2=22, F5=22", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31018", "اناث", "منى تيمان أدريس قصب", "56", "A7,A8", "A7=28, A8=28", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31033", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "44", "G1,G2", "G1=22, G2=22", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31021", "اناث", "براء طعمه ابو السل .", "48", "D6,D7", "D6=24, D7=24", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31027", "اناث", "براء طعمه ابو السل .", "39", "D8,B6", "D8=20, B6=19", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31036", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "37", "G3,G4", "G3=19, G4=18", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31042", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "39", "A7,A8", "A7=20, A8=19", "مسائي", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31024", "اناث", "براء طعمه ابو السل .", "51", "B7,B8", "B7=26, B8=25", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31030", "اناث", "براء طعمه ابو السل .", "26", "F7", "F7=26", "مسائي", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "31039", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "28", "G7", "G7=28", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "4106", "اناث", "منى تيمان أدريس قصب", "49", "C6,C7", "C6=25, C7=24", "", "0"],
+            ["الأربعاء", "29/10/2025", "الثانية", "PHRM214", "علم الادوية 1", "4112", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "20", "G8", "G8=20", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8104", "اناث", "نرجس محمد صيام محمد", "42", "A7,A8", "A7=21, A8=21", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8108", "اناث", "أمال هاشم محمد ِعبدالعليم", "50", "F6,F7", "F6=25, F7=25", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1102", "اناث", "سلوى وفائي . .", "56", "F8,B6", "F8=28, B6=28", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1107", "اناث", "ندى صقر حويل الرويلي", "48", "B7,B8", "B7=24, B8=24", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1112", "اناث", "ندى صقر حويل الرويلي", "47", "F9,C6", "F9=24, C6=23", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1117", "اناث", "سلوى وفائي . .", "49", "C7,C8", "C7=25, C8=24", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1132", "اناث", "ندى صقر حويل الرويلي", "33", "C9", "C9=33", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1137", "ذكور", "عمرو محمود عبدالدايم محمد", "50", "C8,C9", "C8=25, C9=25", "مسائي", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1142", "ذكور", "عمرو محمود عبدالدايم محمد", "59", "G3,G4", "G3=30, G4=29", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1147", "ذكور", "سمير هاشم هاشم خليفه", "48", "G5,G6", "G5=24, G6=24", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1152", "ذكور", "عمرو محمود عبدالدايم محمد", "49", "G7,G8", "G7=25, G8=24", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1157", "ذكور", "سمير هاشم هاشم خليفه", "32", "H1", "H1=32", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1161", "اناث", "ندى صقر حويل الرويلي", "16", "D8", "D8=16", "مسائي", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8121", "اناث", "رانيا عبدالخالق جودة الجندى", "26", "F10", "F10=26", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1122", "اناث", "سلوى وفائي . .", "52", "E9,D6", "E9=26, D6=26", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "PENG002", "اللغة الانجليزية تحضيري 2", "1127", "اناث", "ندى صقر حويل الرويلي", "33", "D7", "D7=33", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8112", "ذكور", "رهام محرم ابراهيم سراج", "42", "H3,H4", "H3=21, H4=21", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8114", "ذكور", "دانيال جوزيف ُاسفينا برديدا", "64", "H5,H6", "H5=32, H6=32", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8116", "اناث", "ضحى عبدالهادي عبدالجواد محمد", "52", "E6,E8", "E6=26, E8=26", "", "0"],
+            ["الخميس", "30/10/2025", "الأولى", "NURS443", "مبادئ البحث العلمي في التمريض", "8123", "ذكور", "عماد محمد محمد عبدالتواب", "26", "H8", "H8=26", "", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3102", "اناث", "رولا حسن ازهري .", "46", "A7,A8", "A7=23, A8=23", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3107", "اناث", "رولا حسن ازهري .", "46", "D6,D7", "D6=23, D7=23", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PAT213", "علم الامراض", "4103", "اناث", "براء طعمه ابو السل .", "39", "D8,B6", "D8=20, B6=19", "", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PAT213", "علم الامراض", "4110", "ذكور", "عدنان فارس الدهمشي العنزي", "46", "G1,G2", "G1=23, G2=23", "", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3125", "اناث", "مثايل فهد مبارك الشمري", "26", "B7", "B7=26", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PAT213", "علم الامراض", "4117", "اناث", "اشراقه عبيد محمد صالح", "31", "B8", "B8=31", "", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3112", "ذكور", "محمد محمود ابراهيم هلال", "45", "G3,G4", "G3=23, G4=22", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PAT213", "علم الامراض", "4114", "ذكور", "عدنان فارس الدهمشي العنزي", "44", "C6,C7", "C6=22, C7=22", "مسائي", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3119", "اناث", "منال سلطان مداد الرويلي", "53", "C6,C7", "C6=27, C7=26", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3121", "ذكور", "محمد محمود ابراهيم هلال", "18", "G7", "G7=18", "", "محوسب"],
+            ["الخميس", "30/10/2025", "الثانية", "PAT213", "علم الامراض", "4113", "اناث", "براء طعمه ابو السل .", "31", "D7", "D7=31", "مسائي", "0"],
+            ["الخميس", "30/10/2025", "الثانية", "PHYL281", "علم وظائف الاعضاء", "3122", "اناث", "مثايل فهد مبارك الشمري", "16", "D6", "D6=16", "مسائي", "محوسب"],
+            ["الأحد", "02/11/2025", "الأولى", "ARAB101", "مهارات اللغة العربية", "3105", "اناث", "نجود عواد عوده العطوي", "54", "A7,A8", "A7=27, A8=27", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الأولى", "ARAB101", "مهارات اللغة العربية", "3115", "ذكور", "محمد رفعت اسماعيل السوداني", "49", "G1,G2", "G1=25, G2=24", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الأولى", "NURS411", "تمريض الحالات الحرجة نظري", "8102", "اناث", "رانيا عبدالخالق جودة الجندى", "21", "D6", "D6=21", "", "0"],
+            ["الأحد", "02/11/2025", "الأولى", "NURS411", "تمريض الحالات الحرجة نظري", "8106", "اناث", "رانيا عبدالخالق جودة الجندى", "50", "D7,D8", "D7=25, D8=25", "", "0"],
+            ["الأحد", "02/11/2025", "الأولى", "NURS411", "تمريض الحالات الحرجة نظري", "8110", "ذكور", "عماد محمد محمد عبدالتواب", "12", "G3", "G3=12", "", "0"],
+            ["الأحد", "02/11/2025", "الأولى", "ARAB101", "مهارات اللغة العربية", "3110", "اناث", "نجود عواد عوده العطوي", "56", "B6,B7", "B6=28, B7=28", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الأولى", "NURS411", "تمريض الحالات الحرجة نظري", "8118", "اناث", "نرجس محمد صيام محمد", "33", "B8", "B8=33", "مسائي", "0"],
+            ["الأحد", "02/11/2025", "الأولى", "NURS411", "تمريض الحالات الحرجة نظري", "8120", "ذكور", "علي حسين عبدالمجيد محمد", "51", "C7,C6", "C7=26, C6=25", "مسائي", "0"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5103", "اناث", "منى تيمان أدريس قصب", "51", "C8,C9", "C8=26, C9=25", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5115", "اناث", "منى تيمان أدريس قصب", "29", "D6", "D6=29", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5118", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "20", "G1", "G1=20", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5126", "اناث", "براء طعمه ابو السل .", "13", "B7", "B7=13", "مسائي", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5109", "اناث", "منى تيمان أدريس قصب", "48", "D8,B6", "D8=24, B6=24", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5124", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "7", "G1", "G1=7", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5106", "اناث", "منى تيمان أدريس قصب", "44", "B7,B8", "B7=22, B8=22", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5112", "اناث", "منى تيمان أدريس قصب", "45", "C7,C6", "C7=23, C6=22", "", "محوسب"],
+            ["الأحد", "02/11/2025", "الثانية", "PHRM304", "علم الادوية 2", "5121", "ذكور", "عبدالقادر الامين عبدالقادر الامين", "35", "G3", "G3=35", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الأولى", "NURS331", "تمريض الامومة نظري", "6102", "اناث", "رباب صبري حسن محمد", "27", "A7", "A7=27", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الأولى", "NURS331", "تمريض الامومة نظري", "6105", "اناث", "رباب صبري حسن محمد", "18", "A8", "A8=18", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1124", "اناث", "انفال ساير مرحول الرويلي", "55", "F8,F7", "F8=28, F7=27", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1139", "ذكور", "صلاح علوي حسين الشرفي", "45", "C6,C7", "C6=23, C7=22", "مسائي", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1114", "اناث", "انفال ساير مرحول الرويلي", "50", "C6,B6", "C6=25, B6=25", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1119", "اناث", "انفال ساير مرحول الرويلي", "41", "B7,B8", "B7=21, B8=20", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "NURS331", "تمريض الامومة نظري", "6110", "اناث", "رباب صبري حسن محمد", "35", "F9", "F9=35", "مسائي", "محوسب"],
+            ["الإثنين", "03/11/2025", "الأولى", "NURS331", "تمريض الامومة نظري", "6108", "ذكور", "نعيمه محمد السيد شعبان", "48", "C8,C9", "C8=24, C9=24", "مسائي", "محوسب"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1104", "اناث", "انفال ساير مرحول الرويلي", "57", "C7,C8", "C7=29, C8=28", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1109", "اناث", "انفال ساير مرحول الرويلي", "45", "C9,F10", "C9=23, F10=22", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1144", "ذكور", "صلاح علوي حسين الشرفي", "60", "G5,G6", "G5=30, G6=30", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1149", "ذكور", "صلاح علوي حسين الشرفي", "45", "G7,G8", "G7=23, G8=22", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1154", "ذكور", "صلاح علوي حسين الشرفي", "43", "H1,H2", "H1=22, H2=21", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1129", "اناث", "انفال ساير مرحول الرويلي", "56", "E9,E10", "E9=28, E10=28", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1134", "اناث", "انفال ساير مرحول الرويلي", "34", "F6", "F6=34", "", "0"],
+            ["الإثنين", "03/11/2025", "الأولى", "PCOS001", "مهارات الحاسب", "1159", "ذكور", "صلاح علوي حسين الشرفي", "43", "H3,H4", "H3=22, H4=21", "", "0"],
+            ["الإثنين", "03/11/2025", "الثانية", "PHYS121", "فيزياء طبية", "2108", "ذكور", "بشارة إلياس حمدتو أرباب", "37", "G1,G2", "G1=25, G2=12", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الثانية", "PHYS121", "فيزياء طبية", "2116", "اناث", "ماثر جدعان عبدالرحمن الجديع", "15", "A7", "A7=15", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الثانية", "PHYS121", "فيزياء طبية", "2117", "اناث", "ماثر جدعان عبدالرحمن الجديع", "9", "F10", "F10=9", "مسائي", "محوسب"],
+            ["الإثنين", "03/11/2025", "الثانية", "PHYS121", "فيزياء طبية", "2102", "اناث", "ماثر جدعان عبدالرحمن الجديع", "48", "C7,C8", "C7=24, C8=24", "", "محوسب"],
+            ["الإثنين", "03/11/2025", "الثانية", "PHYS121", "فيزياء طبية", "2119", "ذكور", "بشارة إلياس حمدتو أرباب", "10", "A7", "A7=10", "مسائي", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "ANT205", "علم التشريح", "3113", "ذكور", "بشارة إلياس حمدتو أرباب", "41", "G1,G2", "G1=21, G2=20", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "NURS421", "تمريض صحة المجتمع نظري", "8101", "اناث", "سيده محمد احمد سليمان", "52", "A7,A8", "A7=26, A8=26", "", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "NURS421", "تمريض صحة المجتمع نظري", "8105", "اناث", "داليا محمد فتحي عبدالمقصود", "19", "C7", "C7=19", "", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "NURS421", "تمريض صحة المجتمع نظري", "8109", "ذكور", "إبراهيم أحمد محمد السماحي", "12", "G3", "G3=12", "", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "NURS421", "تمريض صحة المجتمع نظري", "8119", "ذكور", "احمد محمود بسيوني سمك", "42", "C6,C7", "C6=21, C7=21", "مسائي", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "ANT205", "علم التشريح", "3103", "اناث", "ياسمين سالم - دراق", "55", "C8,C9", "C8=28, C9=27", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "ANT205", "علم التشريح", "3108", "اناث", "ياسمين سالم - دراق", "48", "B6,B7", "B6=24, B7=24", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "NURS421", "تمريض صحة المجتمع نظري", "8117", "اناث", "داليا محمد فتحي عبدالمقصود", "23", "D5", "D5=23", "مسائي", "محوسب"],
+            ["الثلاثاء", "04/11/2025", "الأولى", "ANT205", "علم التشريح", "3116", "اناث", "ياسمين سالم - دراق", "23", "D4", "D4=23", "مسائي", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7104", "اناث", "منال محمد احمد عبدالعزيز", "56", "A7,A8", "A7=28, A8=28", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7108", "اناث", "منال محمد احمد عبدالعزيز", "52", "C8,C9", "C8=26, C9=26", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7128", "ذكور", "أشرف أمين عبدالعظيم الطحان", "17", "G1", "G1=17", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7112", "اناث", "ادلينا ماغتوتو سانتوس .", "45", "D6,D7", "D6=23, D7=22", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7120", "اناث", "ايمان مختار محمد جبر", "47", "D6,D7", "D6=24, D7=23", "مسائي", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7132", "ذكور", "إبراهيم أحمد محمد السماحي", "45", "C8,C9", "C8=23, C9=22", "مسائي", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7124", "ذكور", "أشرف أمين عبدالعظيم الطحان", "35", "G4", "G4=35", "", "0"],
+            ["الثلاثاء", "04/11/2025", "الثانية", "MGT181", "إدارة الجودة الشاملة", "7116", "اناث", "ادلينا ماغتوتو سانتوس .", "45", "C7,C6", "C7=23, C6=22", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31017", "اناث", "اسماء عبدالله احمد حسين", "59", "A7,A8", "A7=30, A8=29", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31022", "اناث", "كريل دوريكو اغونور .", "46", "F8,F9", "F8=23, F9=23", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31028", "اناث", "اسماء عبدالله احمد حسين", "52", "B3,B6", "B3=26, B6=26", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31032", "ذكور", "محمد مصطفى محمود سلطان", "34", "G1", "G1=34", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31037", "ذكور", "احمد جمال محمد عطية", "7", "G3", "G3=7", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5102", "اناث", "لمياء عبدالحكيم علي أحمد", "53", "B7,B8", "B7=27, B8=26", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5107", "اناث", "لمياء عبدالحكيم علي أحمد", "52", "C2,C6", "C2=26, C6=26", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5113", "اناث", "لمياء عبدالحكيم علي أحمد", "30", "C7", "C7=30", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5117", "ذكور", "محمد مصطفى محمود سلطان", "40", "G4,G5", "G4=20, G5=20", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5122", "ذكور", "محمد مصطفى محمود سلطان", "47", "G6,G7", "G6=24, G7=23", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS213", "اساسيات التمريض 2 نظري", "4101", "اناث", "زينب ربيع عبدالمرضي امام", "50", "C8,C9", "C8=25, C9=25", "", "محوسب"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS213", "اساسيات التمريض 2 نظري", "4107", "ذكور", "هدى محمد عبدالرحمن فليفل", "50", "G8,H1", "G8=25, H1=25", "", "محوسب"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS213", "اساسيات التمريض 2 نظري", "4116", "اناث", "غادة صبحي حسن عبدالرحمن", "44", "F7,F6", "F7=22, F6=22", "", "محوسب"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS213", "اساسيات التمريض 2 نظري", "4118", "ذكور", "احمد جمال محمد عطية", "24", "G3", "G3=24", "", "محوسب"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31020", "اناث", "ايمان محمد محمد ابوبكر", "40", "D4,D5", "D4=20, D5=20", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31025", "اناث", "ايمان محمد محمد ابوبكر", "45", "D6,D7", "D6=23, D7=22", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31035", "ذكور", "محمد مصطفى محمود سلطان", "26", "H3", "H3=26", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "31040", "ذكور", "احمد جمال محمد عطية", "34", "C7", "C7=34", "مسائي", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5105", "اناث", "كريل دوريكو اغونور .", "27", "D8", "D8=27", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5110", "اناث", "كريل دوريكو اغونور .", "23", "E6", "E6=23", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5120", "ذكور", "دانيال جوزيف ُاسفينا برديدا", "45", "H6,H7", "H6=23, H7=22", "", "0"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS213", "اساسيات التمريض 2 نظري", "4115", "اناث", "هدايا اسماعيل ابو بكر اسماعيل", "50", "E8,E9", "E8=25, E9=25", "", "محوسب"],
+            ["الأربعاء", "05/11/2025", "الأولى", "NURS321", "تمريض الصحة العقلية نظري", "5125", "اناث", "ايمان محمد محمد ابوبكر", "25", "D8", "D8=25", "مسائي", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "PENG008", "اللغة الانجليزية تحضيري 4", "2109", "ذكور", "عمرو محمود عبدالدايم محمد", "61", "G1,G2", "G1=31, G2=30", "", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "ENGL110", "مهارات الكتابة باللغة الانجليزية", "4105", "اناث", "ندى صقر حويل الرويلي", "65", "A7,A8", "A7=33, A8=32", "", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "ENGL110", "مهارات الكتابة باللغة الانجليزية", "4109", "ذكور", "عمر محمد المولى سعيد", "25", "G4", "G4=25", "", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "PENG008", "اللغة الانجليزية تحضيري 4", "2104", "اناث", "سلوى وفائي . .", "57", "C6,C7", "C6=29, C7=28", "", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "PENG008", "اللغة الانجليزية تحضيري 4", "2112", "اناث", "سلوى وفائي . .", "48", "B6,B7", "B6=24, B7=24", "", "0"],
+            ["الأربعاء", "05/11/2025", "الثانية", "PENG008", "اللغة الانجليزية تحضيري 4", "2122", "اناث", "شهد زياد علي الدندن", "49", "B8,C9", "B8=25, C9=24", "", "0"],
+            ["الخميس", "06/11/2025", "الأولى", "NURS313", "تمريض عناية بالغين متقدم نظري", "6101", "اناث", "رشا عبدالحليم عبدالمعطي القاضي", "37", "A7,A8", "A7=19, A8=18", "", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "NURS313", "تمريض عناية بالغين متقدم نظري", "6104", "اناث", "رشا عبدالحليم عبدالمعطي القاضي", "32", "C9", "C9=32", "", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "NURS313", "تمريض عناية بالغين متقدم نظري", "6107", "ذكور", "عايده أحمد محمد ابراهيم", "40", "G1,G2", "G1=20, G2=20", "", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "BIOL281", "علم الأحياء الدقيقه", "4102", "اناث", "اشراقه عبيد محمد صالح", "56", "D6,D7", "D6=28, D7=28", "", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "BIOL281", "علم الأحياء الدقيقه", "4108", "ذكور", "عدنان فارس الدهمشي العنزي", "25", "G3", "G3=25", "", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "PBIO121", "احياء طبية", "2107", "ذكور", "سلطان عياده ثاني الشمري", "45", "G4,G5", "G4=23, G5=22", "", "0"],
+            ["الخميس", "06/11/2025", "الأولى", "NURS313", "تمريض عناية بالغين متقدم نظري", "6112", "اناث", "عايده أحمد محمد ابراهيم", "20", "D6", "D6=20", "مسائي", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "PBIO121", "احياء طبية", "2115", "اناث", "منال سلطان مداد الرويلي", "27", "D7", "D7=27", "مسائي", "0"],
+            ["الخميس", "06/11/2025", "الأولى", "NURS313", "تمريض عناية بالغين متقدم نظري", "6111", "ذكور", "وائل حبيب تركي العنزي", "45", "C8,C9", "C8=23, C9=22", "مسائي", "محوسب"],
+            ["الخميس", "06/11/2025", "الأولى", "PBIO121", "احياء طبية", "2103", "اناث", "منال سلطان مداد الرويلي", "48", "C8,C6", "C8=24, C6=24", "", "0"],
+            ["الخميس", "06/11/2025", "الأولى", "PBIO121", "احياء طبية", "2123", "اناث", "اشراقه عبيد محمد صالح", "29", "C7", "C7=29", "", "0"],
+            ["الخميس", "06/11/2025", "الأولى", "PBIO121", "احياء طبية", "2118", "ذكور", "سلطان عياده ثاني الشمري", "17", "C6", "", "مسائي", "0"],
+        ];
+
+
+        // تهيئة القوائم المنسدلة
+        function initializeDropdowns() {
+            const days = new Set();
+            const dates = new Set();
+            const periods = new Set();
+
+            data.forEach(row => {
+                days.add(row[0]);
+                dates.add(row[1]);
+                periods.add(row[2]);
+            });
+
+            populateSelect('day', Array.from(days).sort());
+            populateSelect('date', Array.from(dates).sort());
+            populateSelect('period', Array.from(periods).sort());
+        }
+
+        function populateSelect(id, values) {
+            const select = document.getElementById(id);
+            values.forEach(value => {
+                const option = document.createElement('option');
+                option.value = value;
+                option.textContent = value;
+                select.appendChild(option);
+            });
+        }
+
+        // البحث
+        function search() {
+            const filters = {
+                day: document.getElementById('day').value.toLowerCase(),
+                date: document.getElementById('date').value.toLowerCase(),
+                period: document.getElementById('period').value.toLowerCase(),
+                gender: document.getElementById('gender').value.toLowerCase(),
+                course: document.getElementById('course').value.toLowerCase(),
+                courseCode: document.getElementById('courseCode').value.toLowerCase(),
+                section: document.getElementById('section').value.toLowerCase(),
+                professor: document.getElementById('professor').value.toLowerCase(),
+                room: document.getElementById('room').value.toLowerCase(),
+                computerized: document.getElementById('computerized').checked,
+                evening: document.getElementById('evening').checked
+            };
+
+            const results = data.filter(row => {
+                if (filters.day && row[0].toLowerCase() !== filters.day) return false;
+                if (filters.date && row[1].toLowerCase() !== filters.date) return false;
+                if (filters.period && row[2].toLowerCase() !== filters.period) return false;
+                if (filters.gender && row[6].toLowerCase() !== filters.gender) return false;
+                if (filters.course && !row[4].toLowerCase().includes(filters.course)) return false;
+                if (filters.courseCode && !row[3].toLowerCase().includes(filters.courseCode)) return false;
+                if (filters.section && !row[5].toLowerCase().includes(filters.section)) return false;
+                if (filters.professor && !row[7].toLowerCase().includes(filters.professor)) return false;
+                if (filters.room && !row[9].toLowerCase().includes(filters.room)) return false;
+                if (filters.computerized && row[12] !== 'محوسب') return false;
+                if (filters.evening && row[11] !== 'مسائي') return false;
+                return true;
+            });
+
+            displayResults(results);
+            updateStats(results);
+        }
+
+        // عرض النتائج
+        function displayResults(results) {
+            const resultsDiv = document.getElementById('results');
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = `
+                    <div class="no-results">
+                        <span style="font-size: 4em;">🔍</span>
+                        <p>لم يتم العثور على نتائج</p>
+                        <p style="font-size: 0.9em; margin-top: 10px;">جرب تغيير معايير البحث</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اليوم</th>
+                            <th>التاريخ</th>
+                            <th>الفترة</th>
+                            <th>رمز المقرر</th>
+                            <th>المقرر</th>
+                            <th>الشعبة</th>
+                            <th>جنس الشعبة</th>
+                            <th>أستاذ المقرر</th>
+                            <th>عدد المسجلين</th>
+                            <th>القاعات</th>
+                            <th>توزيع</th>
+                            <th>معلومات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            results.forEach(row => {
+                const computerized = row[12] === 'محوسب';
+                const evening = row[11] === 'مسائي';
+                const isFemale = row[6] === 'اناث';
+                
+                html += `
+                    <tr>
+                        <td>${row[0]}</td>
+                        <td>${row[1]}</td>
+                        <td>${row[2]}</td>
+                        <td><strong>${row[3]}</strong></td>
+                        <td>${row[4]}</td>
+                        <td>${row[5]}</td>
+                        <td><span class="badge ${isFemale ? 'badge-female' : 'badge-male'}">${row[6]}</span></td>
+                        <td>${row[7]}</td>
+                        <td><strong>${row[8]}</strong></td>
+                        <td>${row[9]}</td>
+                        <td style="font-size: 0.85em;">${row[10]}</td>
+                        <td>
+                            ${computerized ? '<span class="badge badge-computerized">محوسب</span>' : ''}
+                            ${evening ? '<span class="badge badge-evening">مسائي</span>' : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            resultsDiv.innerHTML = html;
+        }
+
+        // تحديث الإحصائيات
+        function updateStats(results) {
+            const statsDiv = document.getElementById('stats');
+            
+            if (results.length === 0) {
+                statsDiv.classList.remove('show');
+                return;
+            }
+
+            const totalStudents = results.reduce((sum, row) => sum + parseInt(row[8] || 0), 0);
+            const roomsSet = new Set();
+            
+            results.forEach(row => {
+                const rooms = row[9].split(',');
+                rooms.forEach(room => roomsSet.add(room.trim()));
+            });
+
+            document.getElementById('totalResults').textContent = results.length;
+            document.getElementById('totalStudents').textContent = totalStudents;
+            document.getElementById('totalRooms').textContent = roomsSet.size;
+            
+            statsDiv.classList.add('show');
+        }
+
+        // إعادة تعيين
+        function reset() {
+            document.getElementById('day').value = '';
+            document.getElementById('date').value = '';
+            document.getElementById('period').value = '';
+            document.getElementById('gender').value = '';
+            document.getElementById('course').value = '';
+            document.getElementById('courseCode').value = '';
+            document.getElementById('section').value = '';
+            document.getElementById('professor').value = '';
+            document.getElementById('room').value = '';
+            document.getElementById('computerized').checked = false;
+            document.getElementById('evening').checked = false;
+            
+            document.getElementById('results').innerHTML = `
+                <div class="no-results">
+                    <span style="font-size: 4em;">📚</span>
+                    <p>استخدم نموذج البحث أعلاه للبدء</p>
+                </div>
+            `;
+            
+            document.getElementById('stats').classList.remove('show');
+        }
+
+        // البحث عند الضغط على Enter
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDropdowns();
+            
+            const inputs = document.querySelectorAll('input[type="text"]');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        search();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
